@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>OS Patron</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=DM+Mono:wght@300;400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080809;
+  --s1: #0f0f11;
+  --s2: #17171a;
+  --s3: #1f1f23;
+  --b1: rgba(255,255,255,0.05);
+  --b2: rgba(255,255,255,0.09);
+  --b3: rgba(255,255,255,0.15);
+  --tx: #ede9e0;
+  --tm: #5a5a62;
+  --th: #28282e;
+  --gold: #c9a84c;
+  --gold2: rgba(201,168,76,0.12);
+  --salle: #2dd4a0;
+  --ecom: #60aeff;
+  --mkt: #ffb347;
+  --ia: #b69fff;
+  --growth: #ff7b95;
+  --ok: #2dd4a0;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+body {
+  background: var(--bg);
+  color: var(--tx);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+  padding-bottom: 100px;
+  overflow-x: hidden;
+}
+
+/* ---- GRAIN OVERLAY ---- */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* ---- HEADER ---- */
+.header {
+  padding: 36px 24px 24px;
+  position: relative;
+  border-bottom: 1px solid var(--b1);
+}
+.header-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.1s forwards;
+}
+.header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.2s forwards;
+}
+.header h1 span { color: var(--gold); }
+.header-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.3s forwards;
+}
+.header-sub {
+  font-size: 12px;
+  color: var(--tm);
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 1px;
+}
+.date-chip {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  padding: 6px 14px;
+  border-radius: 30px;
+  border: 1px solid var(--b2);
+  color: var(--tm);
+  background: var(--s2);
+  letter-spacing: 0.5px;
+}
+
+/* ---- NAV ---- */
+.nav {
+  display: flex;
+  gap: 4px;
+  padding: 14px 24px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  position: relative;
+  z-index: 1;
+}
+.nav::-webkit-scrollbar { display: none; }
+.nav-tab {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  border-radius: 30px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--tm);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.25s;
+}
+.nav-tab:hover { color: var(--tx); border-color: var(--b2); }
+.nav-tab.active {
+  background: var(--gold2);
+  color: var(--gold);
+  border-color: rgba(201,168,76,0.25);
+}
+
+/* ---- CONTENT ---- */
+.content { padding: 20px 24px; position: relative; z-index: 1; }
+.section { display: none; }
+.section.active { display: block; animation: fadeUp 0.35s forwards; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- CARD ---- */
+.card {
+  background: var(--s1);
+  border: 1px solid var(--b1);
+  border-radius: 20px;
+  padding: 20px 22px;
+  margin-bottom: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--b3), transparent);
+}
+.card-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--tm);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-eyebrow::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--b1);
+}
+
+/* ---- ALERT ---- */
+.alert {
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 12px;
+  line-height: 1.7;
+  margin-bottom: 16px;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.3px;
+}
+.alert-ia { background: rgba(182,159,255,0.06); border: 1px solid rgba(182,159,255,0.15); color: #c4b5fd; }
+.alert-red { background: rgba(255,123,149,0.06); border: 1px solid rgba(255,123,149,0.15); color: var(--growth); }
+
+/* ---- PLANNING BLOCKS ---- */
+.plan-block {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--b1);
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 0;
+}
+.plan-block:last-of-type { border-bottom: none; }
+.plan-block:hover { padding-left: 4px; }
+.plan-block.done { opacity: 0.45; }
+.plan-block.done .plan-desc { text-decoration: line-through; }
+
+.plan-check {
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  border: 1.5px solid var(--b2);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+  transition: all 0.2s;
+  background: transparent;
+}
+.plan-block.done .plan-check {
+  background: var(--ok);
+  border-color: var(--ok);
+}
+
+.plan-body { flex: 1; }
+.plan-time {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--tm);
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+.plan-tag {
+  display: inline-block;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.8px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-bottom: 5px;
+}
+.plan-desc { font-size: 13px; color: var(--tm); line-height: 1.5; }
+.plan-note-wrap { margin-top: 8px; display: none; }
+.plan-note-wrap.open { display: block; }
+.plan-note {
+  width: 100%;
+  background: var(--s2);
+  border: 1px solid var(--b1);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: var(--tx);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  outline: none;
+  resize: none;
+  line-height: 1.6;
+  transition: border-color 0.2s;
+}
+.plan-note:focus { border-color: var(--b3); }
+.plan-note::placeholder { color: var(--th); }
+.note-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 7px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--th);
+  cursor: pointer;
+  transition: color 0.2s;
+  border: none;
+  background: none;
+  padding: 0;
+}
+.note-toggle:hover { color: var(--tm); }
+.note-toggle.has-note { color: var(--gold); }
+
+/* ---- PROGRESS ---- */
+.prog-wrap { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--b1); }
+.prog-meta {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--tm);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.prog-bar {
+  height: 2px;
+  background: var(--s3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.prog-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--gold), var(--ok));
+  transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ---- CHECKLIST ---- */
+.check-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--b1);
+  cursor: pointer;
+  transition: padding-left 0.2s;
+}
+.check-item:hover { padding-left: 4px; }
+.check-item:last-child { border-bottom: none; }
+.checkbox {
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  border: 1.5px solid var(--b2);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+  transition: all 0.2s;
+}
+.check-item.done .checkbox { background: var(--ok); border-color: var(--ok); }
+.check-item.done .check-text { text-decoration: line-through; color: var(--tm); }
+.check-text { font-size: 14px; line-height: 1.5; }
+
+/* ---- OBJECTIFS ---- */
+.obj-proj { margin-bottom: 20px; }
+.obj-proj-hd {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.obj-bar-accent {
+  width: 3px;
+  height: 18px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.obj-proj-name {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.obj-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--b1);
+  cursor: pointer;
+  transition: padding-left 0.2s;
+}
+.obj-item:hover { padding-left: 4px; }
+.obj-item:last-of-type { border-bottom: none; }
+.obj-check {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1.5px solid var(--b2);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.obj-item.done .obj-check { background: var(--ok); border-color: var(--ok); }
+.obj-item.done .obj-text { text-decoration: line-through; color: var(--tm); }
+.obj-text { font-size: 13px; flex: 1; line-height: 1.5; }
+.obj-input-row { display: flex; gap: 8px; margin-top: 10px; }
+.obj-add-field {
+  flex: 1;
+  background: var(--s2);
+  border: 1px solid var(--b1);
+  border-radius: 10px;
+  padding: 9px 14px;
+  color: var(--tx);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.obj-add-field:focus { border-color: var(--b3); }
+.obj-add-field::placeholder { color: var(--th); }
+.obj-add-btn {
+  padding: 9px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--b2);
+  background: transparent;
+  color: var(--tm);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.obj-add-btn:hover { color: var(--tx); border-color: var(--b3); }
+.obj-divider { border: none; border-top: 1px solid var(--b1); margin: 16px 0; }
+
+/* ---- INPUTS ---- */
+textarea, .field {
+  width: 100%;
+  background: var(--s2);
+  border: 1px solid var(--b1);
+  border-radius: 12px;
+  padding: 13px 16px;
+  color: var(--tx);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  outline: none;
+  resize: none;
+  line-height: 1.6;
+  transition: border-color 0.2s;
+}
+textarea:focus, .field:focus { border-color: var(--b3); }
+textarea::placeholder, .field::placeholder { color: var(--th); }
+.input-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--tm);
+  margin-bottom: 8px;
+  display: block;
+}
+.input-group { margin-bottom: 16px; }
+.input-group:last-child { margin-bottom: 0; }
+
+/* ---- PILOTAGE ROWS ---- */
+.proj-row { display: flex; gap: 12px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--b1); }
+.proj-row:last-of-type { border-bottom: none; }
+.proj-label-wrap { display: flex; align-items: center; gap: 7px; min-width: 90px; padding-top: 14px; flex-shrink: 0; }
+.proj-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.proj-label-txt { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; }
+
+/* ---- PRIORITY DISPLAY ---- */
+.priority-big {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--tx);
+  padding: 6px 0 10px;
+  min-height: 34px;
+}
+.priority-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--tm);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+/* ---- MISSED TAGS ---- */
+.missed-tag {
+  display: inline-block;
+  background: rgba(255,123,149,0.08);
+  color: var(--growth);
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin: 3px 4px 3px 0;
+  border: 1px solid rgba(255,123,149,0.15);
+}
+
+/* ---- SAVE BTN ---- */
+.save-btn {
+  width: 100%;
+  padding: 15px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, var(--gold), #a07830);
+  color: #0a0a08;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: all 0.25s;
+}
+.save-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+.save-btn:active { transform: scale(0.98); }
+.save-btn.saved {
+  background: linear-gradient(135deg, var(--ok), #1a9970);
+  color: white;
+}
+
+/* ---- HISTORY ---- */
+.history { margin-top: 32px; }
+.history-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--th);
+  margin-bottom: 16px;
+}
+.history-item {
+  background: var(--s1);
+  border: 1px solid var(--b1);
+  border-radius: 16px;
+  padding: 16px 18px;
+  margin-bottom: 10px;
+}
+.history-date {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--tm);
+  margin-bottom: 12px;
+}
+.history-row { font-size: 13px; color: var(--tm); margin-bottom: 6px; line-height: 1.5; }
+.history-row:last-child { margin-bottom: 0; }
+.history-row b {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--th);
+  margin-right: 8px;
+}
+.empty {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--th);
+  text-align: center;
+  padding: 24px 0;
+}
+
+/* ---- GOLD ACCENT LINE ---- */
+.gold-line {
+  width: 40px;
+  height: 2px;
+  background: var(--gold);
+  border-radius: 2px;
+  margin-bottom: 20px;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.4s forwards;
+}
+
+/* ---- SPORT ---- */
+.week-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 14px; }
+.session-card {
+  background: var(--s2);
+  border: 1px solid var(--b1);
+  border-radius: 14px;
+  padding: 14px 14px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.session-card:hover { border-color: var(--b2); }
+.session-card.done { border-color: rgba(45,212,160,0.3); background: rgba(45,212,160,0.05); }
+.session-card.rest {
+  border-style: dashed;
+  opacity: 0.4;
+  cursor: default;
+}
+.session-day {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--tm);
+  margin-bottom: 6px;
+}
+.session-card.done .session-day { color: var(--ok); }
+.session-type {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--tx);
+  margin-bottom: 3px;
+  line-height: 1.2;
+}
+.session-focus {
+  font-size: 11px;
+  color: var(--tm);
+}
+.session-check {
+  position: absolute;
+  top: 12px; right: 12px;
+  width: 20px; height: 20px;
+  border-radius: 6px;
+  border: 1.5px solid var(--b2);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.session-card.done .session-check { background: var(--ok); border-color: var(--ok); }
+
+.sport-note-wrap { margin-top: 8px; }
+.sport-note {
+  width: 100%;
+  background: var(--s1);
+  border: 1px solid var(--b1);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: var(--tx);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  outline: none;
+  resize: none;
+  line-height: 1.6;
+  transition: border-color 0.2s;
+}
+.sport-note:focus { border-color: var(--b3); }
+.sport-note::placeholder { color: var(--th); }
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--b1);
+  font-size: 13px;
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-label { color: var(--tm); font-size: 13px; }
+.stat-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  color: var(--tx);
+}
+.stat-val.gold { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-eyebrow">OS Patron · Night Owl</div>
+  <h1>Mon<br><span>Système</span></h1>
+  <div class="header-meta">
+    <div class="header-sub" id="date-badge">—</div>
+    <div class="date-chip" id="time-badge">—</div>
+  </div>
+</div>
+
+<nav class="nav">
+  <button class="nav-tab active" onclick="showTab('planning',this)">Planning</button>
+  <button class="nav-tab" onclick="showTab('objectifs',this)">Objectifs</button>
+  <button class="nav-tab" onclick="showTab('pilotage',this)">Pilotage</button>
+  <button class="nav-tab" onclick="showTab('revue',this)">Revue 12h</button>
+  <button class="nav-tab" onclick="showTab('bilan',this)">Bilan nuit</button>
+  <button class="nav-tab" onclick="showTab('sport',this)">Sport</button>
+</nav>
+
+<div class="content">
+
+  <!-- ===== PLANNING ===== -->
+  <div id="planning" class="section active">
+    <div class="alert alert-ia">Coche chaque bloc quand tu l'as fait. Les blocs manquants remontent dans le bilan nuit.</div>
+    <div class="card">
+      <div class="card-eyebrow" id="plan-day">Journée</div>
+
+      <div class="plan-block" id="b0" onclick="toggleBlock(this,'Revue 12h — lire priorités')">
+        <div class="plan-check"></div>
+        <div class="plan-body">
+          <div class="plan-time">12:00 — 12:15</div>
+          <span class="plan-tag" style="background:rgba(255,255,255,0.05);color:var(--tm);">Revue</span>
+          <div class="plan-desc">Ouvrir le système, lire ta priorité #1, décider tes blocs du jour</div>
+          <button class="note-toggle" id="nt-b0" onclick="toggleNote(event,'b0')">+ Note</button>
+          <div class="plan-note-wrap" id="nw-b0">
+            <textarea class="plan-note" id="n-b0" rows="2" placeholder="Remarque, problème, idée..." onclick="event.stopPropagation()" oninput="saveNote('b0')"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="plan-block" id="b1" onclick="toggleBlock(this,'Salle de sport — présence équipe')">
+        <div class="plan-check"></div>
+        <div class="plan-body">
+          <div class="plan-time">12:15 — 14:00</div>
+          <span class="plan-tag" style="background:rgba(45,212,160,0.1);color:var(--salle);">Salle</span>
+          <div class="plan-desc">Présence physique, bilan équipe, décisions urgentes</div>
+          <button class="note-toggle" id="nt-b1" onclick="toggleNote(event,'b1')">+ Note</button>
+          <div class="plan-note-wrap" id="nw-b1">
+            <textarea class="plan-note" id="n-b1" rows="2" placeholder="Remarque, problème, idée..." onclick="event.stopPropagation()" oninput="saveNote('b1')"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="plan-block" id="b2" onclick="toggleBlock(this,'E-commerce — choix et décisions produits')">
+        <div class="plan-check"></div>
+        <div class="plan-body">
+          <div class="plan-time">14:00 — 16:00</div>
+          <span class="plan-tag" style="background:rgba(96,174,255,0.1);color:var(--ecom);">E-commerce</span>
+          <div class="plan-desc">Choix modèles, fournisseurs, décisions produits</div>
+          <button class="note-toggle" id="nt-b2" onclick="toggleNote(event,'b2')">+ Note</button>
+          <div class="plan-note-wrap" id="nw-b2">
+            <textarea class="plan-note" id="n-b2" rows="2" placeholder="Remarque, problème, idée..." onclick="event.stopPropagation()" oninput="saveNote('b2')"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="plan-block" id="b3" onclick="toggleBlock(this,'Marketing — campagnes et orientations')">
+        <div class="plan-check"></div>
+        <div class="plan-body">
+          <div class="plan-time">16:00 — 18:00</div>
+          <span class="plan-tag" style="background:rgba(255,179,71,0.1);color:var(--mkt);">Marketing</span>
+          <div class="plan-desc">Campagnes, résultats, orientations stratégiques</div>
+          <button class="note-toggle" id="nt-b3" onclick="toggleNote(event,'b3')">+ Note</button>
+          <div class="plan-note-wrap" id="nw-b3">
+            <textarea class="plan-note" id="n-b3" rows="2" placeholder="Remarque, problème, idée..." onclick="event.stopPropagation()" oninput="saveNote('b3')"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="plan-block" id="b4" onclick="toggleBlock(this,'Pause repas')">
+        <div class="plan-check"></div>
+        <div class="plan-body">
+          <div class="plan-time">18:00 — 19:00</div>
+          <span class="plan-tag" style="background:rgba(255,255,255,0.05);color:var(--tm);">Pause</span>
+          <div class="plan-desc">Repas. Zéro travail. Le cerveau se recharge.</div>
+          <button class="note-toggle" id="nt-b4" onclick="toggleNote(event,'b4')">+ Note</button>
+          <div class="plan-note-wrap" id="nw-b4">
+            <textarea class="plan-note" id="n-b4" rows="2" placeholder="Remarque, problème, idée..." onclick="event.stopPropagation()" oninput="saveNote('b4')"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="plan-block" id="b5" onclick="toggleBlock(this,'Salle — fermeture et bilan')">
+        <div class="plan-check"></div>
+        <div class="plan-body">
+          <div class="plan-time">19:00 — 22:00</div>
+          <span class="plan-tag" style="background:rgba(45,212,160,0.1);color:var(--salle);">Salle (fermeture)</span>
+          <div class="plan-desc">Présence, bilan du jour, fermeture à 22h</div>
+          <button class="note-toggle" id="nt-b5" onclick="toggleNote(event,'b5')">+ Note</button>
+          <div class="plan-note-wrap" id="nw-b5">
+            <textarea class="plan-note" id="n-b5" rows="2" placeholder="Remarque, problème, idée..." onclick="event.stopPropagation()" oninput="saveNote('b5')"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="plan-block" id="b6" onclick="toggleBlock(this,'Transition — retour maison')">
+        <div class="plan-check"></div>
+        <div class="plan-body">
+          <div class="plan-time">22:30 — 23:00</div>
+          <span class="plan-tag" style="background:rgba(255,255,255,0.05);color:var(--tm);">Transition</span>
+          <div class="plan-desc">Mange, dépose le mode gérant, prépare ton espace</div>
+          <button class="note-toggle" id="nt-b6" onclick="toggleNote(event,'b6')">+ Note</button>
+          <div class="plan-note-wrap" id="nw-b6">
+            <textarea class="plan-note" id="n-b6" rows="2" placeholder="Remarque, problème, idée..." onclick="event.stopPropagation()" oninput="saveNote('b6')"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="plan-block" id="b7" onclick="toggleBlock(this,'Formation IA — apprentissage')">
+        <div class="plan-check"></div>
+        <div class="plan-body">
+          <div class="plan-time">23:00 — 00:30</div>
+          <span class="plan-tag" style="background:rgba(182,159,255,0.1);color:var(--ia);">Formation IA</span>
+          <div class="plan-desc">90 min d'apprentissage pur. 1 leçon = 1 application notée</div>
+          <button class="note-toggle" id="nt-b7" onclick="toggleNote(event,'b7')">+ Note</button>
+          <div class="plan-note-wrap" id="nw-b7">
+            <textarea class="plan-note" id="n-b7" rows="2" placeholder="Remarque, problème, idée..." onclick="event.stopPropagation()" oninput="saveNote('b7')"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="plan-block" id="b8" onclick="toggleBlock(this,'Travail profond — production')">
+        <div class="plan-check"></div>
+        <div class="plan-body">
+          <div class="plan-time">00:30 — 02:30</div>
+          <span class="plan-tag" style="background:rgba(96,174,255,0.1);color:var(--ecom);">Travail profond</span>
+          <div class="plan-desc">Téléphone mode avion. UN seul projet. Produire.</div>
+          <button class="note-toggle" id="nt-b8" onclick="toggleNote(event,'b8')">+ Note</button>
+          <div class="plan-note-wrap" id="nw-b8">
+            <textarea class="plan-note" id="n-b8" rows="2" placeholder="Remarque, problème, idée..." onclick="event.stopPropagation()" oninput="saveNote('b8')"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="plan-block" id="b9" onclick="toggleBlock(this,'Bilan nuit — 4 questions')">
+        <div class="plan-check"></div>
+        <div class="plan-body">
+          <div class="plan-time">02:30 — 03:00</div>
+          <span class="plan-tag" style="background:rgba(45,212,160,0.1);color:var(--salle);">Bilan nuit</span>
+          <div class="plan-desc">Remplir les 4 questions — onglet Bilan nuit</div>
+          <button class="note-toggle" id="nt-b9" onclick="toggleNote(event,'b9')">+ Note</button>
+          <div class="plan-note-wrap" id="nw-b9">
+            <textarea class="plan-note" id="n-b9" rows="2" placeholder="Remarque, problème, idée..." onclick="event.stopPropagation()" oninput="saveNote('b9')"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="plan-block" id="b10" onclick="toggleBlock(this,'Sport — séance entraînement')">
+        <div class="plan-check"></div>
+        <div class="plan-body">
+          <div class="plan-time">À définir · Lun / Mer / Ven</div>
+          <span class="plan-tag" style="background:rgba(255,179,71,0.1);color:var(--mkt);">Sport</span>
+          <div class="plan-desc">Séance entraînement · Coche et note tes charges dans l'onglet Sport</div>
+          <button class="note-toggle" id="nt-b10" onclick="toggleNote(event,'b10')">+ Note</button>
+          <div class="plan-note-wrap" id="nw-b10">
+            <textarea class="plan-note" id="n-b10" rows="2" placeholder="Séance du jour, charges, ressenti..." onclick="event.stopPropagation()" oninput="saveNote('b10')"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="prog-wrap">
+        <div class="prog-meta">
+          <span>Progression</span>
+          <span id="plan-count">0 / 10</span>
+        </div>
+        <div class="prog-bar"><div class="prog-fill" id="plan-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== OBJECTIFS ===== -->
+  <div id="objectifs" class="section">
+    <div class="alert alert-ia">Remplis une fois en début de mois. Coche au fur et à mesure.</div>
+    <div class="card">
+      <div class="card-eyebrow" id="month-label">Mois</div>
+
+      <div class="obj-proj">
+        <div class="obj-proj-hd">
+          <div class="obj-bar-accent" style="background:var(--salle);"></div>
+          <span class="obj-proj-name" style="color:var(--salle);">Salle de sport</span>
+        </div>
+        <div id="obj-salle"></div>
+        <div class="obj-input-row">
+          <input class="obj-add-field" id="new-salle" placeholder="Ajouter un objectif...">
+          <button class="obj-add-btn" onclick="addObj('salle')">+ Add</button>
+        </div>
+      </div>
+      <div class="obj-divider"></div>
+
+      <div class="obj-proj">
+        <div class="obj-proj-hd">
+          <div class="obj-bar-accent" style="background:var(--ecom);"></div>
+          <span class="obj-proj-name" style="color:var(--ecom);">E-commerce</span>
+        </div>
+        <div id="obj-ecom"></div>
+        <div class="obj-input-row">
+          <input class="obj-add-field" id="new-ecom" placeholder="Ajouter un objectif...">
+          <button class="obj-add-btn" onclick="addObj('ecom')">+ Add</button>
+        </div>
+      </div>
+      <div class="obj-divider"></div>
+
+      <div class="obj-proj">
+        <div class="obj-proj-hd">
+          <div class="obj-bar-accent" style="background:var(--mkt);"></div>
+          <span class="obj-proj-name" style="color:var(--mkt);">Marketing</span>
+        </div>
+        <div id="obj-mkt"></div>
+        <div class="obj-input-row">
+          <input class="obj-add-field" id="new-mkt" placeholder="Ajouter un objectif...">
+          <button class="obj-add-btn" onclick="addObj('mkt')">+ Add</button>
+        </div>
+      </div>
+      <div class="obj-divider"></div>
+
+      <div class="obj-proj">
+        <div class="obj-proj-hd">
+          <div class="obj-bar-accent" style="background:var(--ia);"></div>
+          <span class="obj-proj-name" style="color:var(--ia);">Contenu IA</span>
+        </div>
+        <div id="obj-ia"></div>
+        <div class="obj-input-row">
+          <input class="obj-add-field" id="new-ia" placeholder="Ajouter un objectif...">
+          <button class="obj-add-btn" onclick="addObj('ia')">+ Add</button>
+        </div>
+      </div>
+      <div class="obj-divider"></div>
+
+      <div class="obj-proj">
+        <div class="obj-proj-hd">
+          <div class="obj-bar-accent" style="background:var(--growth);"></div>
+          <span class="obj-proj-name" style="color:var(--growth);">Growth</span>
+        </div>
+        <div id="obj-growth"></div>
+        <div class="obj-input-row">
+          <input class="obj-add-field" id="new-growth" placeholder="Ajouter un objectif...">
+          <button class="obj-add-btn" onclick="addObj('growth')">+ Add</button>
+        </div>
+      </div>
+
+      <div class="prog-wrap">
+        <div class="prog-meta">
+          <span>Objectifs accomplis</span>
+          <span id="obj-count">0 / 0</span>
+        </div>
+        <div class="prog-bar"><div class="prog-fill" id="obj-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PILOTAGE ===== -->
+  <div id="pilotage" class="section">
+    <div class="alert alert-ia">À remplir chaque lundi en 20 min. Ne retouche plus jusqu'au lundi suivant.</div>
+    <div class="card">
+      <div class="card-eyebrow" id="week-label">Semaine</div>
+      <div class="proj-row">
+        <div class="proj-label-wrap">
+          <div class="proj-dot" style="background:var(--salle);"></div>
+          <span class="proj-label-txt" style="color:var(--salle);">Salle</span>
+        </div>
+        <textarea class="field" rows="2" id="p-salle" placeholder="État actuel + action clé..."></textarea>
+      </div>
+      <div class="proj-row">
+        <div class="proj-label-wrap">
+          <div class="proj-dot" style="background:var(--ecom);"></div>
+          <span class="proj-label-txt" style="color:var(--ecom);">Ecom</span>
+        </div>
+        <textarea class="field" rows="2" id="p-ecom" placeholder="État actuel + action clé..."></textarea>
+      </div>
+      <div class="proj-row">
+        <div class="proj-label-wrap">
+          <div class="proj-dot" style="background:var(--mkt);"></div>
+          <span class="proj-label-txt" style="color:var(--mkt);">Mkt</span>
+        </div>
+        <textarea class="field" rows="2" id="p-mkt" placeholder="État actuel + action clé..."></textarea>
+      </div>
+      <div class="proj-row">
+        <div class="proj-label-wrap">
+          <div class="proj-dot" style="background:var(--ia);"></div>
+          <span class="proj-label-txt" style="color:var(--ia);">IA</span>
+        </div>
+        <textarea class="field" rows="2" id="p-ia" placeholder="État actuel + action clé..."></textarea>
+      </div>
+      <div class="proj-row">
+        <div class="proj-label-wrap">
+          <div class="proj-dot" style="background:var(--growth);"></div>
+          <span class="proj-label-txt" style="color:var(--growth);">Growth</span>
+        </div>
+        <textarea class="field" rows="2" id="p-growth" placeholder="État actuel + action clé..."></textarea>
+      </div>
+      <button class="save-btn" id="save-pil" onclick="savePilotage()">Enregistrer le pilotage</button>
+    </div>
+  </div>
+
+  <!-- ===== REVUE 12H ===== -->
+  <div id="revue" class="section">
+    <div class="alert alert-ia">Tu lis — pas besoin de réfléchir. C'est déjà décidé depuis hier soir.</div>
+    <div class="card">
+      <div class="card-eyebrow">Priorité #1 aujourd'hui</div>
+      <div class="priority-big" id="priority-display">—</div>
+      <div class="priority-sub">Définie hier soir · Bilan nuit</div>
+    </div>
+    <div class="card">
+      <div class="card-eyebrow">Checklist démarrage</div>
+      <div id="checklist-matin">
+        <div class="check-item" onclick="toggleCheck(this)">
+          <div class="checkbox"></div>
+          <div class="check-text">J'ai lu ma priorité #1 du jour</div>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this)">
+          <div class="checkbox"></div>
+          <div class="check-text">J'ai ouvert le planning et je connais mes blocs</div>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this)">
+          <div class="checkbox"></div>
+          <div class="check-text">Téléphone en silencieux pour le premier bloc</div>
+        </div>
+        <div class="check-item" onclick="toggleCheck(this)">
+          <div class="checkbox"></div>
+          <div class="check-text">Je sais quel projet je travaille profond cette nuit</div>
+        </div>
+      </div>
+      <div class="prog-wrap">
+        <div class="prog-meta"><span>Prêt à démarrer</span><span id="matin-count">0 / 4</span></div>
+        <div class="prog-bar"><div class="prog-fill" id="matin-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== BILAN NUIT ===== -->
+  <div id="bilan" class="section">
+    <div class="alert alert-red">Dernière chose avant de dormir. Ne saute jamais cette étape.</div>
+
+    <div class="card" id="missed-card" style="display:none;">
+      <div class="card-eyebrow">Blocs non complétés — à relancer</div>
+      <div id="missed-list"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-eyebrow">Bilan de nuit</div>
+      <div class="input-group">
+        <label class="input-label">01 — Ce que j'ai produit ce soir</label>
+        <textarea id="b1" rows="3" placeholder="Concret et fini. Pas 'j'ai travaillé'..."></textarea>
+      </div>
+      <div class="input-group">
+        <label class="input-label">02 — Ce qui reste à faire</label>
+        <textarea id="b2" rows="2" placeholder="Ce que tu reportes à demain..."></textarea>
+      </div>
+      <div class="input-group">
+        <label class="input-label">03 — Ma priorité #1 pour demain à 12h</label>
+        <input type="text" class="field" id="b3" placeholder="Une seule chose. La plus importante.">
+      </div>
+      <div class="input-group">
+        <label class="input-label">04 — Formation IA → application demain</label>
+        <input type="text" class="field" id="b4" placeholder="Appris quoi → appliqué sur quel projet...">
+      </div>
+      <button class="save-btn" id="save-bilan" onclick="saveBilan()">Enregistrer et dormir</button>
+    </div>
+
+    <div class="history">
+      <div class="history-title">Bilans précédents</div>
+      <div id="history-list"><div class="empty">Premier bilan ce soir.</div></div>
+    </div>
+  </div>
+
+  <!-- ===== SPORT ===== -->
+  <div id="sport" class="section">
+    <div class="alert alert-ia">3 séances / semaine · Objectif : perdre du poids. Coche après chaque séance.</div>
+
+    <div class="card">
+      <div class="card-eyebrow" id="sport-week-label">Programme semaine</div>
+      <div class="week-grid">
+        <div class="session-card" id="s-lun" onclick="toggleSession('lun')">
+          <div class="session-check" id="sc-lun"></div>
+          <div class="session-day">Lundi</div>
+          <div class="session-type">Full Body</div>
+          <div class="session-focus">Force + cardio</div>
+        </div>
+        <div class="session-card rest">
+          <div class="session-day">Mardi</div>
+          <div class="session-type">Repos</div>
+          <div class="session-focus">Récupération</div>
+        </div>
+        <div class="session-card" id="s-mer" onclick="toggleSession('mer')">
+          <div class="session-check" id="sc-mer"></div>
+          <div class="session-day">Mercredi</div>
+          <div class="session-type">Cardio</div>
+          <div class="session-focus">Brûler les graisses</div>
+        </div>
+        <div class="session-card rest">
+          <div class="session-day">Jeudi</div>
+          <div class="session-type">Repos</div>
+          <div class="session-focus">Récupération</div>
+        </div>
+        <div class="session-card" id="s-ven" onclick="toggleSession('ven')">
+          <div class="session-check" id="sc-ven"></div>
+          <div class="session-day">Vendredi</div>
+          <div class="session-type">Full Body</div>
+          <div class="session-focus">Force + mobilité</div>
+        </div>
+        <div class="session-card rest">
+          <div class="session-day">Week-end</div>
+          <div class="session-type">Libre</div>
+          <div class="session-focus">Marche / repos</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-eyebrow">Note de séance</div>
+      <div style="margin-bottom:10px;">
+        <label class="input-label">Quelle séance ?</label>
+        <select class="field" id="sport-select" style="height:42px;cursor:pointer;">
+          <option value="lun">Lundi — Full Body</option>
+          <option value="mer">Mercredi — Cardio</option>
+          <option value="ven">Vendredi — Full Body</option>
+        </select>
+      </div>
+      <div class="sport-note-wrap">
+        <label class="input-label">Remarques (charges, ressenti, durée...)</label>
+        <textarea class="sport-note" id="sport-note-text" rows="3" placeholder="Ex : Squat 60kg x 3 séries, 30min vélo, ressenti correct..."></textarea>
+      </div>
+      <button class="save-btn" id="save-sport-note" onclick="saveSportNote()">Enregistrer la note</button>
+    </div>
+
+    <div class="card">
+      <div class="card-eyebrow">Statistiques du mois</div>
+      <div class="stat-row">
+        <span class="stat-label">Séances ce mois</span>
+        <span class="stat-val gold" id="stat-total">0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Objectif mensuel</span>
+        <span class="stat-val">12</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Régularité</span>
+        <span class="stat-val" id="stat-pct">0%</span>
+      </div>
+      <div class="prog-wrap">
+        <div class="prog-meta"><span>Progression mensuelle</span><span id="stat-label-count">0 / 12</span></div>
+        <div class="prog-bar"><div class="prog-fill" id="stat-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <div class="history">
+      <div class="history-title">Historique séances</div>
+      <div id="sport-history"><div class="empty">Aucune séance encore. À toi de jouer.</div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const DAYS=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+const MONTHS=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const now=new Date();
+const dateStr=DAYS[now.getDay()]+' '+now.getDate()+' '+MONTHS[now.getMonth()];
+document.getElementById('date-badge').textContent=dateStr.toUpperCase();
+document.getElementById('time-badge').textContent=now.getHours()+'H'+String(now.getMinutes()).padStart(2,'0');
+document.getElementById('plan-day').textContent=dateStr;
+document.getElementById('month-label').textContent=MONTHS[now.getMonth()]+' '+now.getFullYear();
+const mon=new Date(now);mon.setDate(now.getDate()-(now.getDay()===0?6:now.getDay()-1));
+document.getElementById('week-label').textContent='Semaine du '+mon.getDate()+' '+MONTHS[mon.getMonth()];
+
+const CHECK_SVG='<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,6.5 4.5,9 10,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+function showTab(id,btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='bilan')loadMissed();
+  if(id==='revue')loadPriority();
+}
+
+// PLANNING
+let blocks=JSON.parse(localStorage.getItem('blocks_'+dateStr)||'{}');
+
+function toggleBlock(el,label){
+  const done=el.classList.toggle('done');
+  el.querySelector('.plan-check').innerHTML=done?CHECK_SVG:'';
+  const existingNote=blocks[el.id]?blocks[el.id].note:'';
+  blocks[el.id]={label,done,note:existingNote};
+  localStorage.setItem('blocks_'+dateStr,JSON.stringify(blocks));
+  updatePlanProg();
+}
+
+function toggleNote(e,id){
+  e.stopPropagation();
+  const wrap=document.getElementById('nw-'+id);
+  const btn=document.getElementById('nt-'+id);
+  const isOpen=wrap.classList.toggle('open');
+  if(isOpen){
+    document.getElementById('n-'+id).focus();
+    btn.textContent='— Fermer';
+  } else {
+    const hasNote=document.getElementById('n-'+id).value.trim();
+    btn.textContent=hasNote?'✦ Note':'+ Note';
+    btn.classList.toggle('has-note',!!hasNote);
+  }
+}
+
+function saveNote(id){
+  const note=document.getElementById('n-'+id).value;
+  if(!blocks[id]) blocks[id]={label:'',done:false};
+  blocks[id].note=note;
+  localStorage.setItem('blocks_'+dateStr,JSON.stringify(blocks));
+  const btn=document.getElementById('nt-'+id);
+  btn.classList.toggle('has-note',!!note.trim());
+}
+
+function updatePlanProg(){
+  const total=document.querySelectorAll('.plan-block').length;
+  const done=Object.values(blocks).filter(b=>b.done).length;
+  document.getElementById('plan-count').textContent=done+' / '+total;
+  document.getElementById('plan-bar').style.width=(done/total*100)+'%';
+}
+
+Object.entries(blocks).forEach(([id,val])=>{
+  const el=document.getElementById(id);
+  if(!el)return;
+  if(val.done){el.classList.add('done');el.querySelector('.plan-check').innerHTML=CHECK_SVG;}
+  if(val.note){
+    const ta=document.getElementById('n-'+id);
+    const btn=document.getElementById('nt-'+id);
+    if(ta) ta.value=val.note;
+    if(btn){btn.textContent='✦ Note';btn.classList.add('has-note');}
+  }
+});
+updatePlanProg();
+
+// OBJECTIFS
+const PROJS=['salle','ecom','mkt','ia','growth'];
+const mKey='obj_'+now.getMonth()+'_'+now.getFullYear();
+let objData=JSON.parse(localStorage.getItem(mKey)||'{}');
+PROJS.forEach(p=>{if(!objData[p])objData[p]=[];});
+function renderObjs(){
+  let tot=0,done=0;
+  PROJS.forEach(p=>{
+    document.getElementById('obj-'+p).innerHTML=objData[p].map((o,i)=>`
+      <div class="obj-item ${o.done?'done':''}" onclick="toggleObj('${p}',${i})">
+        <div class="obj-check">${o.done?CHECK_SVG:''}</div>
+        <span class="obj-text">${o.text}</span>
+      </div>`).join('');
+    tot+=objData[p].length;
+    done+=objData[p].filter(o=>o.done).length;
+  });
+  document.getElementById('obj-count').textContent=done+' / '+tot;
+  document.getElementById('obj-bar').style.width=tot>0?(done/tot*100)+'%':'0%';
+}
+function addObj(proj){
+  const f=document.getElementById('new-'+proj);
+  const t=f.value.trim();if(!t)return;
+  objData[proj].push({text:t,done:false});
+  localStorage.setItem(mKey,JSON.stringify(objData));
+  f.value='';renderObjs();
+}
+function toggleObj(proj,idx){
+  objData[proj][idx].done=!objData[proj][idx].done;
+  localStorage.setItem(mKey,JSON.stringify(objData));
+  renderObjs();
+}
+PROJS.forEach(p=>{
+  document.getElementById('new-'+p).addEventListener('keydown',e=>{if(e.key==='Enter')addObj(p);});
+});
+renderObjs();
+
+// CHECKLIST MATIN
+function toggleCheck(el){
+  el.classList.toggle('done');
+  el.querySelector('.checkbox').innerHTML=el.classList.contains('done')?CHECK_SVG:'';
+  const checks=document.querySelectorAll('#checklist-matin .check-item');
+  let done=0;checks.forEach(c=>{if(c.classList.contains('done'))done++;});
+  document.getElementById('matin-count').textContent=done+' / '+checks.length;
+  document.getElementById('matin-bar').style.width=(done/checks.length*100)+'%';
+}
+
+// PRIORITY
+function loadPriority(){
+  const b=JSON.parse(localStorage.getItem('bilans')||'[]');
+  if(b.length>0)document.getElementById('priority-display').textContent=b[b.length-1].b3||'—';
+}
+
+// MISSED
+function loadMissed(){
+  const missed=Object.values(blocks).filter(b=>!b.done).map(b=>b.label);
+  const card=document.getElementById('missed-card');
+  if(missed.length===0){card.style.display='none';return;}
+  card.style.display='block';
+  document.getElementById('missed-list').innerHTML=missed.map(m=>`<span class="missed-tag">↩ ${m}</span>`).join('');
+  if(!document.getElementById('b2').value)document.getElementById('b2').value=missed.join(', ');
+}
+
+// PILOTAGE
+const pilKey='pil_'+mon.toDateString();
+const savedPil=JSON.parse(localStorage.getItem(pilKey)||'{}');
+['salle','ecom','mkt','ia','growth'].forEach(p=>{if(savedPil[p])document.getElementById('p-'+p).value=savedPil[p];});
+function savePilotage(){
+  const d={};
+  ['salle','ecom','mkt','ia','growth'].forEach(p=>d[p]=document.getElementById('p-'+p).value);
+  localStorage.setItem(pilKey,JSON.stringify(d));
+  const btn=document.getElementById('save-pil');
+  btn.textContent='✓ Enregistré';btn.classList.add('saved');
+  setTimeout(()=>{btn.textContent='Enregistrer le pilotage';btn.classList.remove('saved');},2000);
+}
+
+// BILAN
+function saveBilan(){
+  const b1v=document.getElementById('b1').value.trim();
+  const b3v=document.getElementById('b3').value.trim();
+  if(!b1v||!b3v){alert('Remplis au moins ce que tu as produit et ta priorité de demain.');return;}
+  const entry={date:dateStr,b1:b1v,b2:document.getElementById('b2').value.trim(),b3:b3v,b4:document.getElementById('b4').value.trim()};
+  const bilans=JSON.parse(localStorage.getItem('bilans')||'[]');
+  bilans.push(entry);
+  localStorage.setItem('bilans',JSON.stringify(bilans));
+  ['b1','b2','b3','b4'].forEach(id=>document.getElementById(id).value='');
+  const btn=document.getElementById('save-bilan');
+  btn.textContent='✓ Enregistré — bonne nuit';btn.classList.add('saved');
+  setTimeout(()=>{btn.textContent='Enregistrer et dormir';btn.classList.remove('saved');loadHistory();},2500);
+}
+
+function loadHistory(){
+  const bilans=JSON.parse(localStorage.getItem('bilans')||'[]');
+  const list=document.getElementById('history-list');
+  if(!bilans.length){list.innerHTML='<div class="empty">Premier bilan ce soir.</div>';return;}
+  list.innerHTML=bilans.slice().reverse().map(b=>`
+    <div class="history-item">
+      <div class="history-date">${b.date}</div>
+      <div class="history-row"><b>Produit</b>${b.b1}</div>
+      ${b.b2?`<div class="history-row"><b>Reste</b>${b.b2}</div>`:''}
+      <div class="history-row"><b>Demain</b>${b.b3}</div>
+      ${b.b4?`<div class="history-row"><b>IA →</b>${b.b4}</div>`:''}
+    </div>`).join('');
+}
+
+// SPORT
+const sportWeekKey = 'sport_week_' + mon.toDateString();
+const sportMonthKey = 'sport_month_' + now.getMonth() + '_' + now.getFullYear();
+let sportWeek = JSON.parse(localStorage.getItem(sportWeekKey) || '{}');
+let sportMonth = JSON.parse(localStorage.getItem(sportMonthKey) || '[]');
+
+document.getElementById('sport-week-label').textContent = 'Semaine du ' + mon.getDate() + ' ' + MONTHS[mon.getMonth()];
+
+const CHECK_SVG_SM = '<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4,8 9.5,2.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+function toggleSession(day) {
+  const card = document.getElementById('s-' + day);
+  const check = document.getElementById('sc-' + day);
+  if (!card) return;
+  const done = card.classList.toggle('done');
+  check.innerHTML = done ? CHECK_SVG_SM : '';
+  sportWeek[day] = done;
+  localStorage.setItem(sportWeekKey, JSON.stringify(sportWeek));
+  updateSportStats();
+}
+
+function saveSportNote() {
+  const day = document.getElementById('sport-select').value;
+  const note = document.getElementById('sport-note-text').value.trim();
+  if (!note) return;
+  const labels = { lun: 'Lundi — Full Body', mer: 'Mercredi — Cardio', ven: 'Vendredi — Full Body' };
+  const entry = { date: dateStr, session: labels[day], note };
+  sportMonth.push(entry);
+  localStorage.setItem(sportMonthKey, JSON.stringify(sportMonth));
+  document.getElementById('sport-note-text').value = '';
+  const btn = document.getElementById('save-sport-note');
+  btn.textContent = '✓ Note enregistrée';
+  btn.classList.add('saved');
+  setTimeout(() => { btn.textContent = 'Enregistrer la note'; btn.classList.remove('saved'); loadSportHistory(); updateSportStats(); }, 2000);
+}
+
+function updateSportStats() {
+  const total = sportMonth.length;
+  const goal = 12;
+  const pct = Math.round(Math.min(total / goal * 100, 100));
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-pct').textContent = pct + '%';
+  document.getElementById('stat-label-count').textContent = total + ' / ' + goal;
+  document.getElementById('stat-bar').style.width = pct + '%';
+}
+
+function loadSportHistory() {
+  const list = document.getElementById('sport-history');
+  if (!sportMonth.length) {
+    list.innerHTML = '<div class="empty">Aucune séance encore. À toi de jouer.</div>';
+    return;
+  }
+  list.innerHTML = sportMonth.slice().reverse().map(s => `
+    <div class="history-item">
+      <div class="history-date">${s.date}</div>
+      <div class="history-row"><b>Séance</b>${s.session}</div>
+      <div class="history-row"><b>Note</b>${s.note}</div>
+    </div>`).join('');
+}
+
+// restore week sessions
+Object.entries(sportWeek).forEach(([day, done]) => {
+  if (done) {
+    const card = document.getElementById('s-' + day);
+    const check = document.getElementById('sc-' + day);
+    if (card) { card.classList.add('done'); check.innerHTML = CHECK_SVG_SM; }
+  }
+});
+loadSportHistory();
+updateSportStats();
+
+loadHistory();loadPriority();
+</script>
+</body>
+</html>
